@@ -3,7 +3,24 @@
 
 template <typename T>
 class Fibin {
-    
+
+    constexpr bool isLegal(char c) {
+        return
+        ('a' <= c && c <= 'z') ||
+        ('A' <= c && c <= 'Z') ||
+        ('0' <= c && c <= '9');
+    }
+
+    constexpr bool verify(char* s, int n) {
+        return s[n] == '\0' ?
+            n > 0 && n < 7 :
+            isLegal(s[n]) && verify(s, n + 1);
+    }
+
+    constexpr typename Var(char* s) {
+        return verify(s, 0) ? int : std::invalid
+    }
+
     struct Logical<bool val>{};
     struct Numeric<T val>{};
 
@@ -26,6 +43,18 @@ class Fibin {
     rozróżniane.
     Przykłady poprawnych zmiennych: Var("A"), Var("01234"), Var("Cdefg").*/
 
+    template<class name> struct Var;
+
+    template<> struct Var<char*>
+    {
+
+    };
+
+    typename Var(char*)
+    {
+
+    }
+
     /* Operacje arytmetyczne Sum, Inc1, Inc10
     Sum<...> - operacja dodawania wielu liczb, wymagane są co najmniej dwa argumenty.
     Inc1<Arg> - specjalizacja dodawania, która zwiększa wartość Arg o Fib<1>.
@@ -38,19 +67,37 @@ class Fibin {
     a False w przeciwnym przypadku.
     Przykład poprawnego porównania: Eq<Lit<Fib<0>>, Lit<Fib<1>>>.*/
 
+    
+
     /* Odwołanie do zmiennej Ref
     Ref<Var> - zwraca wartość zmiennej identyfikowanej przez Var.
     Przykład poprawnego odwołania do zmiennej: Ref<Var("A")>.*/
+
+    template<class V> struct Ref;
+
+    template<> struct Ref<Var<T>>
+    {
+        using type = T
+    };
 
     /* Wyrażenie Let
     Let<Var, Value, Expression> - do zmiennej Var przypisuje wartość Value
     i oblicza wartość Expression.
     Przykład poprawnego wyrażenia: Let<Var("A"), Lit<Fib<1>>, Ref<Var("A")>>.*/
 
+    template<class Var, class Val, class Exp> struct Let;
+
+    template<class Var, class Val>
+        struct Let<Var<T>, Val<T>, Exp<
+
     /* Wyrażenie If
     If<Condition, Then, Else> - jeśli Condition jest True, to oblicza wartość Then,
     a w przeciwnym przypadku oblicza wartość Else.
     Przykład poprawnego wyrażenia: If<Lit<True>, Lit<Fib<1>>, Lit<Fib<0>>>.*/
+
+    template<class C, class T, class F> struct If;
+
+    template<class T, class F> struct If<
 
     /* Wyrażenie Lambda
     Lambda<Var, Body> - reprezentuje anonimową funkcję z jednym parametrem Var

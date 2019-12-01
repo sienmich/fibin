@@ -1,17 +1,29 @@
-//
-// Created by piotr on 30.11.19.
-//
-
 #ifndef PROJECT_4_FIBO_PLAYGROUND_H
 #define PROJECT_4_FIBO_PLAYGROUND_H
 
 
 #include <type_traits>
 
+struct True {};
+struct False {};
+
+/// Zmienne (na razie zmienna nie ma nazwy tylko numer bo nie umiem
+template<unsigned i> struct Var {};
+
+template<typename V> struct Ref {};
+
+template<typename... A> struct Sum {};
+
+template<typename t1, typename t2> struct Eq {};
+
+template<typename Cond, typename IfTrue, typename IfFalse> struct If {};
+
+template<class var, class value, class exp> struct Let {};
 
 template <typename T>
-class Fibin {
-private:
+class Fibin
+{
+public:
 
     /// Wewnętrzne wartości
     template<T a> struct Value
@@ -54,69 +66,102 @@ private:
         }
     };*/
 
+    /// Rekursja leta
+    template<typename From, typename To, typename In> struct Change {};
 
-public:
-
-    /// Zewętrzne wartości
-    struct True {};
-    struct False {};
-
-    template<unsigned i> struct Fib
+    template<typename From, typename To, typename... Params> struct Change<From, To, Sum<Params...>>
     {
-        using value = Value<fibo(i)>;
+        using value = typename Sum<Change<From, To, Params>...>::value;
     };
 
-    template<typename t> using Lit = typename t::value;
-
-    /// Zmienne (na razie zmienna nie ma nazwy tylko numer bo nie umiem
-    template<unsigned i> struct Var {};
-
-    template<typename V> struct Ref {};
-
-
-    /// Suma
-    template<typename... A> struct Sum;
-
-    template<T a,T b> struct Sum<Value<a>, Value<b>>
+    template<typename From, typename To, typename... Params> struct Change<From, To, Eq<Params...>>
     {
-        using value = Value<a + b>;
+        using value = typename Eq<Change<From, To, Params>...>::value;
     };
 
-    template<T head, typename... tail> struct Sum<Value<head>, tail...>
+    template<typename From, typename To, typename... Params> struct Change<From, To, If<Params...>>
     {
-        using value = typename Sum<Value<head>, typename Sum<tail...>::value>::value;
+        using value = typename If<Change<From, To, Params>...>::value;
     };
 
-    ///Eq
-    template<typename t1, typename t2> struct Eq
+    template<typename From, typename To, typename... Params> struct Change<From, To, Let<Params...>>
     {
-        using value = typename std::conditional<
-                std::is_same<typename t1::value, typename t2::value>::value,
-                True, False>::type;
+        using value = typename Let<Change<From, To, Params>...>::value;
     };
 
-    template<unsigned v1, unsigned v2> struct Eq<Value<v1>, Value<v2>>
+    template<typename From, typename To> struct Change<From, To, From>
     {
-        using value = typename std::conditional<v1 == v2, True, False>::type;
+        using value = typename To::value;
     };
 
-    /// If
-    template<typename Cond, typename IfTrue, typename IfFalse> struct If
+    template<unsigned VarNumber, typename To, typename Other, typename Exp> struct Change<Var<VarNumber>, To, Let<Var<VarNumber>, Other, Exp>>
     {
-        using value = typename std::conditional<
-                std::is_same<typename Cond::value, True>::value,
-                IfTrue, IfFalse>::type;
+        using value = typename Let<Var<VarNumber>, Other, Exp>::value;
     };
+};
+
+/// Zewętrzne wartości
+template<unsigned i> struct Fib
+{
+    using value = Fibin<int>::Value<Fibin<int>::fibo(i)>;
+};
+
+template<unsigned i> using Lit<Fib<i>> = Fib<i>::value;
+
+/// Suma
+//todo - add other types
+template<int a, int b> struct Sum<Fibin<int>::Value<a>, Fibin<int>::Value<b>>
+{
+    using value = Fibin<int>::Value<a + b>::value;
+};
+
+template<int head, typename... tail> struct Sum<Fibin<int>::Value<head>, tail...>
+{
+    using value = typename Sum<Fibin<int>::Value<head>, typename Sum<tail...>::value>::value;
+};
+
+///Eq
+template<> struct Eq<True, True>
+{
+    using value = True;
+};
+
+template<> struct Eq<False, True>
+{
+    using value = False;
+};
 
 
-    /// Let
-    template<class var, class value, class exp> struct Let;
+template<> struct Eq<True, False>
+{
+    using value = False;
+};
 
-    template<unsigned VarNumber, typename V, typename Exp> struct Let<Var<VarNumber>, V, Exp>
-    {
-        using Ref<Var<VarNumber>> = V::value;
-        using value = typename Exp::value;
-    };
+
+template<> struct Eq<False, False>
+{
+    using value = True;
+};
+
+
+template<int v1, int v2> struct Eq<Fibin<int>::Value<v1>, Fibin<int>::Value<v2>>
+{
+    using value = typename std::conditional<v1 == v2, True, False>::type;
+};
+
+/// If
+template<typename Cond, typename IfTrue, typename IfFalse> struct If
+{
+    using value = typename std::conditional<
+            std::is_same<typename Cond::value, True>::value,
+            IfTrue, IfFalse>::type;
+};
+
+
+/// Let
+template<unsigned VarNumber, typename V, typename Exp> struct Let<Var<VarNumber>, V, Exp>
+{
+    using value = typename Fibin<int>::Change<Var<VarNumber>, V, Exp>::value;
 };
 
 

@@ -14,26 +14,26 @@ int main()
         Inc10<Ref<Var("X")>>
     >*/
 
-    static_assert(Fibin<int>::Sum
+    static_assert(Sum
     <
-        Fibin<int>::Lit<Fibin<int>::Fib<0>>,
-        Fibin<int>::Lit<Fibin<int>::Fib<1>>,
-        Fibin<int>::Lit<Fibin<int>::Fib<2>>,
-        Fibin<int>::Lit<Fibin<int>::Fib<3>>
+        Lit<Fib<0>>,
+        Lit<Fib<1>>,
+        Lit<Fib<2>>,
+        Lit<Fib<3>>
     >::value::val == 4);
 
     static_assert(
-        Fibin<int>::If<
-        Fibin<int>::Eq
+        If<
+        Eq
         <
-            Fibin<int>::Sum
+            Sum
             <
-                    Fibin<int>::Lit<Fibin<int>::Fib<4>>,
-                    Fibin<int>::Lit<Fibin<int>::Fib<5>>
+                    Lit<Fib<4>>,
+                    Lit<Fib<5>>
             >,
-            Fibin<int>::Lit<Fibin<int>::Fib<6>>
+            Lit<Fib<6>>
         >,
-        Fibin<int>::Lit<Fibin<int>::Fib<0>>,
-        Fibin<int>::Lit<Fibin<int>::Fib<1>>
+        Lit<Fib<0>>,
+        Lit<Fib<1>>
         >::value::val == 0);
 }
