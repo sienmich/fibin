@@ -36,4 +36,16 @@ int main()
         Lit<Fib<0>>,
         Lit<Fib<1>>
         >::value::val == 0);
+
+    static_assert(
+            Let<
+                    Var<1>,
+                    Fib<1>,
+                    Sum
+                    <
+                            Ref<Var<1>>,
+                            Ref<Var<1>>
+                    >
+            >::value::val == 2
+            );
 }
