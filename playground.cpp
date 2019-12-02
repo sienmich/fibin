@@ -20,7 +20,7 @@ int main()
         Lit<Fib<1>>,
         Lit<Fib<2>>,
         Lit<Fib<3>>
-    >::value::val == 4);
+    >::value<int>::val == 4);
 
     static_assert(
         If<
@@ -35,7 +35,7 @@ int main()
         >,
         Lit<Fib<0>>,
         Lit<Fib<1>>
-        >::value::val == 0);
+        >::value<int>::val == 0);
 
     static_assert(
             Let<
@@ -46,6 +46,6 @@ int main()
                             Ref<Var<1>>,
                             Ref<Var<1>>
                     >
-            >::value::val == 2
+            >::value<int>::val == 2
             );
 }
