@@ -6,66 +6,30 @@
 struct True {};
 struct False {};
 
-/// Zmienne (na razie zmienna nie ma nazwy tylko numer bo nie umiem
 constexpr unsigned Var(const char* s)
 {
     return s[0];
 }
 
-template<unsigned i>
-    struct Ref {};
+template<unsigned i> struct Ref {};
 
-template<typename... A>
-    struct Sum {};
+template<typename... A> struct Sum {};
 
-template<typename t1, typename t2>
-    struct Eq
-{
-    template<typename T, typename Env> using evaluate = 
-        typename std::conditional
-        <
-            std::is_same
-            <
-                typename t1::template value<T>,
-                typename t2::template value<T>
-            >::template value<T>,
-            True,
-            False
-        >::type;
+template<typename Val> Inc1 {};
 
-    template<typename T> using value =
-        typename std::conditional
-        <
-            std::is_same
-            <
-                typename t1::template value<T>,
-                typename t2::template value<T>
-            >::template value<T>,
-            True,
-            False
-        >::type;
-};
+template<typename Val> Inc10 {};
 
+template<typename t1, typename t2> struct Eq {};
 
-/// If
-template<typename Cond, typename IfTrue, typename IfFalse>
-    struct If
-{
-    template<typename T> using value =
-        typename std::conditional
-        <
-            std::is_same
-            <
-                typename Cond::value,
-                True
-            >::template value<T>,
-            IfTrue,
-            IfFalse
-        >::type;
-};
+template<typename Cond, typename IfTrue, typename IfFalse> struct If {};
 
-template<class var, class value, class exp> struct Let {};
+template<unsigned VarNo, typename Val, typename Exp> struct Let {};
 
+template<unsigned VarNo, typename Body> struct Lambda {};
+
+template<typename Function, typename Param> Invoke {};
+
+// Fibin
 template <typename T>
     class Fibin
 {
@@ -98,137 +62,162 @@ public:
                isLegal(s[n]) && verify(s, n + 1);
     }
 
-    template<char... C> struct Variable;
 
+private:
 
-    /*struct Var
+    struct EmptyEnv {};
+
+    template<unsigned VarNo, typename Val, typename Tail> struct EnvList {};
+
+    template<typename Env, typename Expr> Eval;
+
+    // Ewaluacja Lita
+    template<typename Env, unsigned i> Eval<Env, Lit<Fib<i>>
     {
-        //typename type;
-        constexpr Var(char* s)
-        {
-            static_assert(verify(s, 0));
-            using type = Variable<s[0], s[1], s[2], s[3], s[4], s[5]>
-        }
-    };*/
-};
+        using result = Value<fibo(i)>;
+    };
 
-/// Zewętrzne wartości
-template<unsigned i>
-    struct Fib
-{
-    template<typename T> using value = typename Fibin<T>::template Value<Fibin<T>::fibo(i)>;
-};
+    // Ewaluacja EQ
+    template<typename Env, typename T1, typename T2> Eval<Env, Eq<T1, T2>>
+    {
+        using result =
+        typename std::conditional
+        <
+            std::is_same
+            <
+                typename Eval<Env, T1>::result
+                typename Eval<Env, T2>::result
+            >,
+            True,
+            False
+        >::type;
+    };
 
-template<typename V>
-    struct Lit;
+    // Ewaluacja sumy
+    template<typename Env, typename A, typename B> struct Eval<Env, Sum<A, B>>
+    {
+        using result =
+        Value
+        <
+            Eval<Env, A>::result::value +
+            Eval<Env, B>::result::value
+        >;
+    };
 
-template<unsigned  i>
-    struct Lit<Fib<i>>
-{
-    template<typename T> using value = typename Fib<i>::template value<T>;
-};
+    template<typename Env, typename Head, typename... Tail> struct Eval<Env, Sum<Head, Tail...>>
+    {
+        using result =
+        Eval
+        <
+            Env,
+            Sum
+            <
+                Eval<Env, Head>::result,
+                Eval<Env, Sum<Tail...>>::result
+            >
+        >::result;
+    };
 
-/// Suma
-//todo - add other types
+    // Ewaluacja Inc1
+    template<typename Env, typename Val> struct Eval<Env, Inc1<Val>>
+    {
+        using result = Eval<Env, Sum<Val, Lit<Fib<1>>>>::result;
+    };
 
-template<int a, int b>
-    struct Sum<Fibin<int>::Value<a>, Fibin<int>::Value<b>>
-{
-    template<typename T> using value = typename Fibin<T>::template Value<a + b>::template value<T>;
-};
+    // Ewaluacja Inc10
+    template<typename Env, typename Val> struct Eval<Env, Inc10<Val>>
+    {
+        using result = Eval<Env, Sum<Val, Lit<Fib<10>>>>::result;
+    };
 
-template<int head, typename... tail>
-    struct Sum<Fibin<int>::Value<head>, tail...>
-{
-    template<typename T> using value =
-    typename Sum<typename Fibin<T>::template Value<head>, typename Sum<tail...>::template value<T>>::template value<T>;
-};
+    // Ewaluacja If
+    template<typename Env, typename Cond, typename IfTrue, typename IfFalse> struct Eval<Env, If<Cond, IfTrue, IfFalse>>
+    {
+        using cond_result = Eval<Env, Cond>;
 
-///Eq
-template<>
-    struct Eq<True, True>
-{
-    template<typename T> using value = True;
-};
+        static_assert
+        (
+            std::is_same<cond_result, True>::value ||
+            std::is_same<cond_resilt, False>::value
+        );
 
-template<>
-    struct Eq<False, True>
-{
-    template<typename T> using value = False;
-};
+        using result =
+        std::conditional
+        <
+            std::is_same
+            <
+                cond_result,
+                True
+            >::value,
+            Eval<Env, IfTrue>::result,
+            Eval<Env, IfFalse>::result
+        >::type;
+    };
 
+    // Ewaluacja Ref
+    template<unsigned VarNo, typename Val, typename EnvTail> struct Eval<EnvList<VarNo, Val, EnvTail>, Ref<VarNo>>
+    {
+        using result = Val;
+    };
 
-template<>
-    struct Eq<True, False>
-{
-    template<typename T> using value = False;
-};
+    template<unsigned VarNo, unsigned EnvVarNo, typename Val, typename EnvTail> struct Eval<EnvList<EnvVarNo, Val, EnvTail>, Ref<VarNo>>
+    {
+        using result =
+        Eval
+        <
+            EnvTail,
+            Ref<VarNo>
+        >::result;
+    };
 
+    // Ewaluacja Let
+    template<typename Env, unsigned VarNo, typename ValExp, typename ResultExp> struct Eval<Env, Let<VarNo, ValExp, ResultExp>>
+    {
+        using val_result = Eval<Env, ValExp>::result;
 
-template<>
-    struct Eq<False, False>
-{
-    template<typename T> using value = True;
-};
+        using result =
+        Eval
+        <
+            EnvList
+            <
+                VarNo,
+                var_result,
+                Env
+            >,
+            ResultExp
+        >::result;
+    };
 
+    // Ewaluacja Invoke
+    template<typename Env, unsigned VarNo, typename Exp, typename Param> struct Eval<Env, Invoke<Lambda<VarNo, Exp>, Param>>
+    {
+        using param_result = Eval<Env, Param>::result;
 
-template<int v1, int v2>
-    struct Eq<Fibin<int>::Value<v1>, Fibin<int>::Value<v2>>
-{
-    template<typename T> using value = typename std::conditional<v1 == v2, True, False>::type;
-};
+        using result =
+        Eval
+        <
+            EnvList
+            <
+                VarNo
+                param_result,
+                Env
+            >,
+            Exp
+        >::result;
+    };
 
-/// Rekursja leta
-template<typename From, typename To, typename In> struct Change {};
+public:
 
-template<unsigned VarNumber, typename To, typename... Params>
-    struct Change<Ref<VarNumber>, To, Sum<Params...>>
-{
-    template<typename T> using value =
-    typename Sum<typename Change<Ref<VarNumber>, To, Params>::template value<T>...>::template value<T>;
-};
+    template<typename T> eval()
+    {
+        return Eval<EmptyEnv, T>::result::value;
+    }
 
-template<unsigned VarNumber, typename To, typename... Params>
-    struct Change<Ref<VarNumber>, To, Eq<Params...>>
-{
-    template<typename T> using value =
-    typename Eq<typename Change<Ref<VarNumber>, To, Params>::template value<T>...>::template value<T>;
-};
+    void eval()
+    {
+        static_assert()
+    }
 
-template<unsigned VarNumber, typename To, typename... Params>
-    struct Change<Ref<VarNumber>, To, If<Params...>>
-{
-    template<typename T> using value =
-    typename If<typename Change<Ref<VarNumber>, To, Params>::template value<T>...>::template value<T>;
-};
-
-template<unsigned VarNumber, typename To, typename... Params>
-    struct Change<Ref<VarNumber>, To, Let<Params...>>
-{
-    template<typename T> using value =
-    typename Let<typename Change<Ref<VarNumber>, To, Params>::template value<T>...>::template value<T>;
-};
-
-template<unsigned VarNumber, typename To>
-    struct Change<Ref<VarNumber>, To, Ref<VarNumber>>
-{
-    template<typename T> using value =
-    typename To::template value<T>;
-};
-
-template<unsigned VarNumber, typename To, typename Other, typename Exp>
-    struct Change<Ref<VarNumber>, To, Let<Ref<VarNumber>, Other, Exp>>
-{
-    template<typename T> using value =
-    typename Let<Ref<VarNumber>, Other, Exp>::template value<T>;
-};
-
-/// Let
-template<unsigned VarNumber, typename V, typename Exp>
-    struct Let<VarNumber, V, Exp>
-{
-    template<typename T> using value =
-    typename Change<Ref<VarNumber>, typename V::template value<T>, Exp>::template value<T>;
 };
 
 #endif //PROJECT_4_FIBO_PLAYGROUND_H
