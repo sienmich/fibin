@@ -7,10 +7,12 @@ struct True {};
 struct False {};
 
 /// Zmienne (na razie zmienna nie ma nazwy tylko numer bo nie umiem
-template<unsigned i>
-    struct Var {};
+constexpr unsigned Var(const char* s)
+{
+    return s[0];
+}
 
-template<typename V>
+template<unsigned i>
     struct Ref {};
 
 template<typename... A>
@@ -19,6 +21,18 @@ template<typename... A>
 template<typename t1, typename t2>
     struct Eq
 {
+    template<typename T, typename Env> using evaluate = 
+        typename std::conditional
+        <
+            std::is_same
+            <
+                typename t1::template value<T>,
+                typename t2::template value<T>
+            >::template value<T>,
+            True,
+            False
+        >::type;
+
     template<typename T> using value =
         typename std::conditional
         <
@@ -167,54 +181,54 @@ template<int v1, int v2>
 /// Rekursja leta
 template<typename From, typename To, typename In> struct Change {};
 
-template<typename From, typename To, typename... Params>
-    struct Change<From, To, Sum<Params...>>
+template<unsigned VarNumber, typename To, typename... Params>
+    struct Change<Ref<VarNumber>, To, Sum<Params...>>
 {
     template<typename T> using value =
-    typename Sum<typename Change<From, To, Params>::template value<T>...>::template value<T>;
+    typename Sum<typename Change<Ref<VarNumber>, To, Params>::template value<T>...>::template value<T>;
 };
 
-template<typename From, typename To, typename... Params>
-    struct Change<From, To, Eq<Params...>>
+template<unsigned VarNumber, typename To, typename... Params>
+    struct Change<Ref<VarNumber>, To, Eq<Params...>>
 {
     template<typename T> using value =
-    typename Eq<typename Change<From, To, Params>::template value<T>...>::template value<T>;
+    typename Eq<typename Change<Ref<VarNumber>, To, Params>::template value<T>...>::template value<T>;
 };
 
-template<typename From, typename To, typename... Params>
-    struct Change<From, To, If<Params...>>
+template<unsigned VarNumber, typename To, typename... Params>
+    struct Change<Ref<VarNumber>, To, If<Params...>>
 {
     template<typename T> using value =
-    typename If<typename Change<From, To, Params>::template value<T>...>::template value<T>;
+    typename If<typename Change<Ref<VarNumber>, To, Params>::template value<T>...>::template value<T>;
 };
 
-template<typename From, typename To, typename... Params>
-    struct Change<From, To, Let<Params...>>
+template<unsigned VarNumber, typename To, typename... Params>
+    struct Change<Ref<VarNumber>, To, Let<Params...>>
 {
     template<typename T> using value =
-    typename Let<typename Change<From, To, Params>::template value<T>...>::template value<T>;
+    typename Let<typename Change<Ref<VarNumber>, To, Params>::template value<T>...>::template value<T>;
 };
 
-template<typename From, typename To>
-    struct Change<From, To, Ref<From>>
+template<unsigned VarNumber, typename To>
+    struct Change<Ref<VarNumber>, To, Ref<VarNumber>>
 {
     template<typename T> using value =
     typename To::template value<T>;
 };
 
 template<unsigned VarNumber, typename To, typename Other, typename Exp>
-    struct Change<Var<VarNumber>, To, Let<Var<VarNumber>, Other, Exp>>
+    struct Change<Ref<VarNumber>, To, Let<Ref<VarNumber>, Other, Exp>>
 {
     template<typename T> using value =
-    typename Let<Var<VarNumber>, Other, Exp>::template value<T>;
+    typename Let<Ref<VarNumber>, Other, Exp>::template value<T>;
 };
 
 /// Let
 template<unsigned VarNumber, typename V, typename Exp>
-    struct Let<Var<VarNumber>, V, Exp>
+    struct Let<VarNumber, V, Exp>
 {
     template<typename T> using value =
-    typename Change<Var<VarNumber>, typename V::template value<T>, Exp>::template value<T>;
+    typename Change<Ref<VarNumber>, typename V::template value<T>, Exp>::template value<T>;
 };
 
 #endif //PROJECT_4_FIBO_PLAYGROUND_H
