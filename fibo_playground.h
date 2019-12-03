@@ -225,6 +225,30 @@ private:
         >::result;
     };
 
+
+    template<typename Env, typename Func, typename Param>
+    struct Eval<Env, Invoke<Func, Param>>
+    {
+        using result = typename Eval
+                <
+                    Env,
+                    Invoke
+                    <
+                    typename Eval<Env, Func>::result,
+                    Param
+                    >
+                >::result;
+    };
+
+    // Ewaluacja Lambda
+    template<typename Env, unsigned VarNo, typename Exp>
+    struct Eval<Env, Lambda<VarNo, Exp>>
+    {
+        using result = Lambda<VarNo, Exp>;
+    };
+
+
+
 public:
 
     template<typename Exp> static constexpr T eval()

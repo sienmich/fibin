@@ -33,30 +33,8 @@ int main() {
             >
     >());
 
-    std::cout <<
-              Fibin<int>::eval<
-                      Let
-                              <
-                                      Var("f"),
-
-                                      Lambda
-                                              <
-                                                      Var("x"),
-                                                      Inc1<Ref<Var("x")>>
-                                              >,
-
-                                      Invoke
-                                              <
-                                                      Ref<Var("f")>,
-                                                      Lit<Fib<0>>
-                                              >
-                              >
-              >()
-    <<"\n";
-
-
     // Prints out to std::cout: "Fibin doesn't support: PKc"
-    Fibin<const char*>::eval<Lit<Fib<0>>>();
+//    Fibin<const char*>::eval<Lit<Fib<0>>>();
 
     static_assert(1  == Fibin<int>::eval<
         Let
@@ -77,6 +55,33 @@ int main() {
         >
     >());
 
+    std::cout << "Powinno byc 1:\n";
+    std::cout <<
+    Fibin<int>::eval<
+            Let<
+                    Var("const"),
+                    Lit<Fib<1>>,
+                    Let<
+                            Var("f"),
+                            Lambda<
+                                    Var("x"),
+                                    Sum<
+                                            Ref<Var("const")>,
+                                            Ref<Var("x")>
+                                    >
+                            >,
+                            Let<
+                                    Var("const"),
+                                    Lit<Fib<3>>,
+                                    Invoke<
+                                            Ref<Var("f")>,
+                                            Lit<Fib<0>>
+                                    >
+                            >
+                    >
+            >
+    >() << "\n";
+/*
     static_assert(1  == Fibin<int>::eval<
             Let<
                     Var("const"),
@@ -103,7 +108,7 @@ int main() {
     >());
 
 
-
+*/
 
 
     std::cout << "Fibin works fine!" << std::endl;
