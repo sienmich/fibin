@@ -12,10 +12,78 @@ int main() {
     static_assert(1 == Fibin<uint8_t>::eval<If<Lit<False>, Lit<Fib<0>>, Lit<Fib<1>>>>());
 
     // Testing: let z = Fib(0) in {z + Fib(1)}
-    static_assert(1 == Fibin<int16_t>::eval<Let<Var("z"), Lit<Fib<0>>, Inc1<Ref<Var("Z")>>>>());
+    static_assert(1 == Fibin<int16_t>::eval<Let<Var("zz"), Lit<Fib<0>>, Inc1<Ref<Var("zZ")>>>>());
+
+    static_assert(2 == Fibin<int>::eval<Lit<Fib<3>>>());
+
+    static_assert(1  == Fibin<int>::eval<
+            Let
+            <
+                Var("X"),
+                Lit<Fib<0>>,
+                Invoke
+                <
+                    Lambda
+                    <
+                        Var("X"),
+                        Ref<Var("X")>
+                    >,
+                    Lit<Fib<1>>
+                >
+            >
+    >());
+
 
     // Prints out to std::cout: "Fibin doesn't support: PKc"
     Fibin<const char*>::eval<Lit<Fib<0>>>();
+
+    static_assert(1  == Fibin<int>::eval<
+        Let
+        <
+            Var("f"),
+
+            Lambda
+            <
+                Var("x"),
+                Inc1<Ref<Var("x")>>
+            >,
+
+            Invoke
+            <
+                Ref<Var("f")>,
+                Lit<Fib<0>>
+            >
+        >
+    >());
+
+    static_assert(1  == Fibin<int>::eval<
+            Let<
+                    Var("const"),
+                    Lit<Fib<1>>,
+                    Let<
+                            Var("f"),
+                            Lambda<
+                                    Var("x"),
+                                    Sum<
+                                            Ref<Var("const")>,
+                                            Ref<Var("x")>
+                                    >
+                            >,
+                            Let<
+                                    Var("const"),
+                                    Lit<Fib<3>>,
+                                    Invoke<
+                                            Ref<Var("f")>,
+                                            Lit<Fib<0>>
+                                    >
+                            >
+                    >
+            >
+    >());
+
+
+
+
 
     std::cout << "Fibin works fine!" << std::endl;
 }

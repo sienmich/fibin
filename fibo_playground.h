@@ -11,13 +11,13 @@ static constexpr bool charToInt(char c) {
     return  ('0' <= c && c <= '9') ? c - '0':
             ('a' <= c && c <= 'z') ? c - 'a' + 10:
             ('A' <= c && c <= 'Z') ? c - 'A' + 10:
-            throw std::logic_error("wrong variable name: wrong char");
+            throw std::logic_error("Wrong variable name: wrong char");
 }
 
 static constexpr unsigned Var(const char* s, int n = 0) {
     return s[n] == '\0' ?
-           (n == 0 ? throw std::logic_error("wrong variable name: length = 0") : 0):
-           (n > 6 ? throw std::logic_error("wrong variable name: length > 6") :
+           (n == 0 ? throw std::logic_error("Wrong variable name: length = 0") : 0):
+           (n > 6 ? throw std::logic_error("Wrong variable name: length > 6") :
             charToInt(s[n]) + 1 + (10 + 'z' - 'a' + 1) * Var(s, n+1)
            );
 }
