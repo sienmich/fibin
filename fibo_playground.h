@@ -7,9 +7,19 @@
 struct True {};
 struct False {};
 
-constexpr unsigned Var(const char* s)
-{
-    return ('a' <= s[0] && s[0] <= 'z') ? s[0] - 'a' + 'A' : s[0];
+static constexpr bool charToInt(char c) {
+    return  ('0' <= c && c <= '9') ? c - '0':
+            ('a' <= c && c <= 'z') ? c - 'a' + 10:
+            ('A' <= c && c <= 'Z') ? c - 'A' + 10:
+            throw std::logic_error("wrong variable name: wrong char");
+}
+
+static constexpr unsigned Var(const char* s, int n = 0) {
+    return s[n] == '\0' ?
+           (n == 0 ? throw std::logic_error("wrong variable name: length = 0") : 0):
+           (n > 6 ? throw std::logic_error("wrong variable name: length > 6") :
+            charToInt(s[n]) + 1 + (10 + 'z' - 'a' + 1) * Var(s, n+1)
+           );
 }
 
 template<unsigned i> struct Ref {};
@@ -36,7 +46,7 @@ template<unsigned i> struct Fib {};
 
 // Fibin
 template <typename T>
-    class Fibin
+class Fibin
 {
 public:
 
@@ -47,24 +57,8 @@ public:
     };
 
 
-    static constexpr T fibo(unsigned pos)
-    {
+    static constexpr T fibo(unsigned pos) {
         return pos < 2 ? pos : fibo(pos - 1) + fibo(pos - 2);
-    }
-
-
-    /// Próby robienia zmiennych które serio mają nazwe
-    constexpr bool isLegal(char c) {
-        return
-                ('a' <= c && c <= 'z') ||
-                ('A' <= c && c <= 'Z') ||
-                ('0' <= c && c <= '9');
-    }
-
-    constexpr bool verify(char* s, int n) {
-        return s[n] == '\0' ?
-               n > 0 && n < 7 :
-               isLegal(s[n]) && verify(s, n + 1);
     }
 
 
