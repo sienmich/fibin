@@ -22,7 +22,7 @@ int main()
         Lit<Fib<3>>
     >::value<int>::val == 4);
 
-    static_assert(
+    static_assert(Fibin<int>::eval<
         If<
         Eq
         <
@@ -35,7 +35,7 @@ int main()
         >,
         Lit<Fib<0>>,
         Lit<Fib<1>>
-        >::value<int>::val == 0);
+        >>);
 
     static_assert(
             Let<

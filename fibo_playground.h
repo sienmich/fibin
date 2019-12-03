@@ -2,22 +2,23 @@
 #define PROJECT_4_FIBO_PLAYGROUND_H
 
 #include <type_traits>
+#include <iostream>
 
 struct True {};
 struct False {};
 
 constexpr unsigned Var(const char* s)
 {
-    return s[0];
+    return ('a' <= s[0] && s[0] <= 'z') ? s[0] - 'a' + 'A' : s[0];
 }
 
 template<unsigned i> struct Ref {};
 
 template<typename... A> struct Sum {};
 
-template<typename Val> Inc1 {};
+template<typename Val> struct Inc1 {};
 
-template<typename Val> Inc10 {};
+template<typename Val> struct Inc10 {};
 
 template<typename t1, typename t2> struct Eq {};
 
@@ -27,7 +28,11 @@ template<unsigned VarNo, typename Val, typename Exp> struct Let {};
 
 template<unsigned VarNo, typename Body> struct Lambda {};
 
-template<typename Function, typename Param> Invoke {};
+template<typename Function, typename Param> struct Invoke {};
+
+template<typename V> struct Lit {};
+
+template<unsigned i> struct Fib {};
 
 // Fibin
 template <typename T>
@@ -69,25 +74,41 @@ private:
 
     template<unsigned VarNo, typename Val, typename Tail> struct EnvList {};
 
-    template<typename Env, typename Expr> Eval;
+    template<typename Env, typename Expr> struct Eval {};
 
     // Ewaluacja Lita
-    template<typename Env, unsigned i> Eval<Env, Lit<Fib<i>>
+    template<typename Env, unsigned i> struct Eval<Env, Lit<Fib<i>>>
     {
         using result = Value<fibo(i)>;
     };
 
-    // Ewaluacja EQ
-    template<typename Env, typename T1, typename T2> Eval<Env, Eq<T1, T2>>
+    template <typename  Env> struct Eval<Env, Lit<False>>
     {
-        using result =
-        typename std::conditional
+        using result = False;
+    };
+
+    template <typename  Env> struct Eval<Env, Lit<True>>
+    {
+        using result = True;
+    };
+
+    // Ewaluacja Value
+    template<typename Env, T i> struct Eval<Env, Value<i>>
+    {
+        using result = Value<i>;
+    };
+
+
+    // Ewaluacja Eq
+    template<typename Env, typename T1, typename T2> struct Eval<Env, Eq<T1, T2>>
+    {
+        using result = typename std::conditional
         <
             std::is_same
             <
-                typename Eval<Env, T1>::result
+                typename Eval<Env, T1>::result,
                 typename Eval<Env, T2>::result
-            >,
+            >::result,
             True,
             False
         >::type;
@@ -96,24 +117,22 @@ private:
     // Ewaluacja sumy
     template<typename Env, typename A, typename B> struct Eval<Env, Sum<A, B>>
     {
-        using result =
-        Value
+        using result = Value
         <
-            Eval<Env, A>::result::value +
-            Eval<Env, B>::result::value
+            Eval<Env, A>::result::val +
+            Eval<Env, B>::result::val
         >;
     };
 
     template<typename Env, typename Head, typename... Tail> struct Eval<Env, Sum<Head, Tail...>>
     {
-        using result =
-        Eval
+        using result = typename Eval
         <
             Env,
             Sum
             <
-                Eval<Env, Head>::result,
-                Eval<Env, Sum<Tail...>>::result
+                typename Eval<Env, Head>::result,
+                typename Eval<Env, Sum<Tail...>>::result
             >
         >::result;
     };
@@ -121,49 +140,50 @@ private:
     // Ewaluacja Inc1
     template<typename Env, typename Val> struct Eval<Env, Inc1<Val>>
     {
-        using result = Eval<Env, Sum<Val, Lit<Fib<1>>>>::result;
+        using result = typename Eval<Env, Sum<Val, Lit<Fib<1>>>>::result;
     };
 
     // Ewaluacja Inc10
     template<typename Env, typename Val> struct Eval<Env, Inc10<Val>>
     {
-        using result = Eval<Env, Sum<Val, Lit<Fib<10>>>>::result;
+        using result = typename Eval<Env, Sum<Val, Lit<Fib<10>>>>::result;
     };
 
     // Ewaluacja If
-    template<typename Env, typename Cond, typename IfTrue, typename IfFalse> struct Eval<Env, If<Cond, IfTrue, IfFalse>>
+    template<typename Env, typename Cond, typename IfTrue, typename IfFalse>
+        struct Eval<Env, If<Cond, IfTrue, IfFalse>>
     {
-        using cond_result = Eval<Env, Cond>;
+        using cond_result = typename Eval<Env, Cond>::result ;
 
         static_assert
         (
             std::is_same<cond_result, True>::value ||
-            std::is_same<cond_resilt, False>::value
+            std::is_same<cond_result, False>::value
         );
 
-        using result =
-        std::conditional
+        using result = typename std::conditional
         <
             std::is_same
             <
                 cond_result,
                 True
             >::value,
-            Eval<Env, IfTrue>::result,
-            Eval<Env, IfFalse>::result
+            typename Eval<Env, IfTrue>::result,
+            typename Eval<Env, IfFalse>::result
         >::type;
     };
 
     // Ewaluacja Ref
-    template<unsigned VarNo, typename Val, typename EnvTail> struct Eval<EnvList<VarNo, Val, EnvTail>, Ref<VarNo>>
+    template<unsigned VarNo, typename Val, typename EnvTail>
+        struct Eval<EnvList<VarNo, Val, EnvTail>, Ref<VarNo>>
     {
         using result = Val;
     };
 
-    template<unsigned VarNo, unsigned EnvVarNo, typename Val, typename EnvTail> struct Eval<EnvList<EnvVarNo, Val, EnvTail>, Ref<VarNo>>
+    template<unsigned VarNo, unsigned EnvVarNo, typename Val, typename EnvTail>
+        struct Eval<EnvList<EnvVarNo, Val, EnvTail>, Ref<VarNo>>
     {
-        using result =
-        Eval
+        using result = typename Eval
         <
             EnvTail,
             Ref<VarNo>
@@ -171,17 +191,17 @@ private:
     };
 
     // Ewaluacja Let
-    template<typename Env, unsigned VarNo, typename ValExp, typename ResultExp> struct Eval<Env, Let<VarNo, ValExp, ResultExp>>
+    template<typename Env, unsigned VarNo, typename ValExp, typename ResultExp>
+        struct Eval<Env, Let<VarNo, ValExp, ResultExp>>
     {
-        using val_result = Eval<Env, ValExp>::result;
+        using val_result = typename Eval<Env, ValExp>::result;
 
-        using result =
-        Eval
+        using result = typename Eval
         <
             EnvList
             <
                 VarNo,
-                var_result,
+                val_result,
                 Env
             >,
             ResultExp
@@ -189,16 +209,16 @@ private:
     };
 
     // Ewaluacja Invoke
-    template<typename Env, unsigned VarNo, typename Exp, typename Param> struct Eval<Env, Invoke<Lambda<VarNo, Exp>, Param>>
+    template<typename Env, unsigned VarNo, typename Exp, typename Param>
+        struct Eval<Env, Invoke<Lambda<VarNo, Exp>, Param>>
     {
-        using param_result = Eval<Env, Param>::result;
+        using param_result = typename Eval<Env, Param>::result;
 
-        using result =
-        Eval
+        using result = typename Eval
         <
             EnvList
             <
-                VarNo
+                VarNo,
                 param_result,
                 Env
             >,
@@ -208,16 +228,15 @@ private:
 
 public:
 
-    template<typename T> eval()
+    template<typename Exp> static constexpr T eval()
     {
-        return Eval<EmptyEnv, T>::result::value;
+        return Eval<EmptyEnv, Exp>::result::val;
     }
 
-    void eval()
+    /*template<typename Exp> static constexpr typename std::enable_if<!std::is_integral<T>::value, void>::type eval()
     {
-        static_assert()
-    }
-
+        std::cout << "Fibin doesn't support: PKc" << std::endl;
+    }*/
 };
 
 #endif //PROJECT_4_FIBO_PLAYGROUND_H
