@@ -171,7 +171,12 @@ private:
     template<unsigned VarNo, typename Val, typename EnvTail>
         struct Eval<EnvList<VarNo, Val, EnvTail>, Ref<VarNo>>
     {
-        using result = Val;
+//        using result = Val;
+        using result = typename Eval
+        <
+            EnvList<VarNo, Val, EnvTail>,
+            Val
+        >::result;
     };
 
     template<unsigned VarNo, unsigned EnvVarNo, typename Val, typename EnvTail>
@@ -188,14 +193,14 @@ private:
     template<typename Env, unsigned VarNo, typename ValExp, typename ResultExp>
         struct Eval<Env, Let<VarNo, ValExp, ResultExp>>
     {
-        using val_result = typename Eval<Env, ValExp>::result;
+//        using val_result = typename Eval<Env, ValExp>::result;
 
         using result = typename Eval
         <
             EnvList
             <
                 VarNo,
-                val_result,
+                ValExp,
                 Env
             >,
             ResultExp

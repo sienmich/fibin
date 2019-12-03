@@ -33,6 +33,27 @@ int main() {
             >
     >());
 
+    std::cout <<
+              Fibin<int>::eval<
+                      Let
+                              <
+                                      Var("f"),
+
+                                      Lambda
+                                              <
+                                                      Var("x"),
+                                                      Inc1<Ref<Var("x")>>
+                                              >,
+
+                                      Invoke
+                                              <
+                                                      Ref<Var("f")>,
+                                                      Lit<Fib<0>>
+                                              >
+                              >
+              >()
+    <<"\n";
+
 
     // Prints out to std::cout: "Fibin doesn't support: PKc"
     Fibin<const char*>::eval<Lit<Fib<0>>>();
