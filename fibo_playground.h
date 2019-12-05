@@ -44,6 +44,7 @@ template<typename V> struct Lit {};
 
 template<unsigned i> struct Fib {};
 
+
 // Fibin
 template <typename T>
 class Fibin
@@ -251,14 +252,25 @@ private:
 
 public:
 
-    template<typename Exp> static constexpr T eval()
+    template<typename Exp>
+    static constexpr
+    std::enable_if_t<std::is_integral_v<T>, T>
+    eval()
     {
-        return Eval<EmptyEnv, Exp>::result::val;
+            return Eval<EmptyEnv, Exp>::result::val;
     }
-
-    /*template<typename Exp> static constexpr typename std::enable_if<!std::is_integral<T>::value, void>::type eval()
+/*
+    template<typename Exp>
+    static
+    std::enable_if_t<!std::is_integral_v<T>>
+    eval()
     {
         std::cout << "Fibin doesn't support: PKc" << std::endl;
+        return 0;
+    }
+*/
+    /*template<typename Exp> static constexpr typename std::enable_if<!std::is_integral<T>::value, void>::type eval()
+    {
     }*/
 };
 
