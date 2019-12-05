@@ -59,7 +59,13 @@ public:
 
 
     static constexpr T fibo(unsigned pos) {
-        return pos < 2 ? pos : fibo(pos - 1) + fibo(pos - 2);
+        int a = 0, b = 1, c = 0;
+        while(pos --> 0) {
+            c = a + b;
+            a = b;
+            b = c;
+        }
+        return a;
     }
 
 

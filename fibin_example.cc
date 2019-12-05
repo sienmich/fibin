@@ -36,10 +36,10 @@ int main() {
     >());
 
     // Prints out to std::cout: "Fibin doesn't support: PKc"
-    Fibin<const char*>::eval<Lit<Fib<0>>>();
-    Fibin<double>::eval<Lit<Fib<0>>>();
-    Fibin<void>::eval<Lit<Fib<0>>>();
-    Fibin<float>::eval<Lit<Fib<0>>>();
+//    Fibin<const char*>::eval<Lit<Fib<0>>>();
+//    Fibin<double>::eval<Lit<Fib<0>>>();
+//    Fibin<void>::eval<Lit<Fib<0>>>();
+//    Fibin<float>::eval<Lit<Fib<0>>>();
 
     static_assert(1  == Fibin<int>::eval<
         Let

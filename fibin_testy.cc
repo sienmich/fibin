@@ -1,6 +1,6 @@
+#include "fibo_playground.h"
 #include <iostream>
 #include <type_traits>
-#include "fibo_playground.h"
 
 template<unsigned n>
 using L = Lit<Fib<n>>;
@@ -37,6 +37,7 @@ void test_fib() {
     static_assert(121393 == Fibin<int>::eval<L<26>>());
     static_assert(196418 == Fibin<int>::eval<L<27>>());
     static_assert(317811 == Fibin<int>::eval<L<28>>());
+    static_assert(514229 == Fibin<int>::eval<L<29>>());
     static_assert(514229 == Fibin<int>::eval<L<29>>());
 
 
@@ -108,6 +109,7 @@ Lambda<
 int main(){
     test_fib();
 
+    /*
     static_assert(FB::eval<If<Lit<False>, Lit<Fib<10>>, Lit<Fib<11>>>>() == 89);
     static_assert(FB::eval<If< Eq<L<1>, L<2>>, L<10>, L<11> >>() == 55);
     static_assert(FB::eval<If< Eq<L<1>, L<3>>, L<10>, L<11> >>() == 89);
@@ -229,4 +231,5 @@ int main(){
 
 	// Prints out to std::cout: "Fibin doesn't support: PKc"
 	Fibin<const char*>::eval<Lit<Fib<0>>>();
+     */
 }
