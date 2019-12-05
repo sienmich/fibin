@@ -113,7 +113,6 @@ int main(){
     static_assert(FB::eval<If< Eq<L<1>, L<2>>, L<10>, L<11> >>() == 55);
     static_assert(FB::eval<If< Eq<L<1>, L<3>>, L<10>, L<11> >>() == 89);
     static_assert(Fibin<uint8_t>::eval<If< Eq<L<32>, L<5>>, L<10>, L<11> >>() == 55);
-    /*
 
 
     static_assert(FB::eval<If<If<Lit<False>, Lit<True>, Lit<False>>, Lit<Fib<2>>, Lit<Fib<3>>>>() == 2);
@@ -124,7 +123,7 @@ int main(){
     static_assert(FB::eval<Sum<L<4>, L<4>>>() == 6);
     static_assert(FB::eval<Inc1<L<4>>>() == 4);
     static_assert(FB::eval<Inc10<L<4>>>() == 58);
-    
+
 
 	//using Variable as bool
 	static_assert(5 == Fibin<int16_t>::eval< Let<Var("true"), Lit<True>,
@@ -170,7 +169,8 @@ int main(){
             >
         >
     >;
-    static_assert(34 == Fibin<int>::eval<Scoping>());
+    ///TODO Scoping
+//    static_assert(34 == Fibin<int>::eval<Scoping>());
 
     static_assert(2 == Fibin<uint>::eval<Invoke<Let<Var("x"), Lit<Fib<1>>, Lambda<Var("x"), Ref<Var("x")> > >, Lit<Fib<3>> > >());
 
@@ -190,6 +190,7 @@ int main(){
             L<11>
         >
     >;
+    /// TODO FB mówi, że nie powinno działać, a działa :o
     static_assert(55 == FB::eval<FunctionComparison>());
 
 
@@ -217,11 +218,18 @@ int main(){
                             >,
                             Ref<Var("args")>>>>>>>;
 
+    /*
+    std::cout << Fibin<uint64_t>::eval<Invoke<
+            Invoke<Ycombinator, SquareN<10>>,
+            Lit<Fib<1>>
+    >>() << "\n";
+
+    /// TODO Ycombinator
     static_assert(
         Fibin<uint64_t>::eval<Invoke<
-            Invoke<Ycombinator, SquareN<45>>,
+            Invoke<Ycombinator, SquareN<10>>,
             Lit<Fib<1>>
-        >>() == 2025);
+        >>() == 100);
 
     static_assert(
         Fibin<uint64_t>::eval<Invoke<
@@ -229,7 +237,13 @@ int main(){
             Lit<Fib<1>>
         >>() == 103*103);
 
-	// Prints out to std::cout: "Fibin doesn't support: PKc"
-	Fibin<const char*>::eval<Lit<Fib<0>>>();
      */
+
+    // Prints out to std::cout: "Fibin doesn't support: PKc"
+    Fibin<const char*>::eval<Lit<Fib<0>>>();
+    Fibin<double>::eval<Lit<Fib<0>>>();
+    Fibin<void>::eval<Lit<Fib<0>>>();
+    Fibin<float>::eval<Lit<Fib<0>>>();
+
+    return 0;
 }

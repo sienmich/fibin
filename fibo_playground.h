@@ -2,23 +2,26 @@
 #define PROJECT_4_FIBO_PLAYGROUND_H
 
 #include <type_traits>
+#include <stdexcept>
+
 #include <iostream>
 
 struct True {};
 struct False {};
-
-static constexpr bool charToInt(char c) {
-    return  ('0' <= c && c <= '9') ? c - '0':
-            ('a' <= c && c <= 'z') ? c - 'a' + 10:
-            ('A' <= c && c <= 'Z') ? c - 'A' + 10:
-            throw std::logic_error("Wrong variable name: wrong char");
+namespace details {
+    constexpr bool charToInt(char c) {
+        return  ('0' <= c && c <= '9') ? c - '0':
+                ('a' <= c && c <= 'z') ? c - 'a' + 10:
+                ('A' <= c && c <= 'Z') ? c - 'A' + 10:
+                throw std::logic_error("Wrong variable name: wrong char");
+    }
 }
 
-static constexpr unsigned Var(const char* s, int n = 0) {
+constexpr unsigned Var(const char* s, int n = 0) {
     return s[n] == '\0' ?
            (n == 0 ? throw std::logic_error("Wrong variable name: length = 0") : 0):
            (n > 6 ? throw std::logic_error("Wrong variable name: length > 6") :
-            charToInt(s[n]) + 1 + (10 + 'z' - 'a' + 1) * Var(s, n+1)
+            details::charToInt(s[n]) + 1 + (10 + 'z' - 'a' + 1) * Var(s, n+1)
            );
 }
 
@@ -45,10 +48,12 @@ template<typename V> struct Lit {};
 template<unsigned i> struct Fib {};
 
 
+template <typename T, typename Enable = void>
+class Fibin;
+
 // Fibin
 template <typename T>
-class Fibin
-{
+class Fibin<T, typename std::enable_if_t<std::is_integral_v<T>>> {
 public:
 
     /// Wewnętrzne wartości
@@ -260,8 +265,7 @@ public:
 
     template<typename Exp>
     static constexpr
-    std::enable_if_t<std::is_integral_v<T>, T>
-    eval()
+T    eval()
     {
             return Eval<EmptyEnv, Exp>::result::val;
     }
@@ -280,4 +284,14 @@ public:
     }*/
 };
 
+
+template <typename T>
+class Fibin<T, typename std::enable_if_t<!std::is_integral_v<T>>> {
+public:
+    template<typename Exp>
+    static T eval()
+    {
+        std::cout << "Fibin doesn't support: " << typeid(T).name() << std::endl;
+    }
+};
 #endif //PROJECT_4_FIBO_PLAYGROUND_H
