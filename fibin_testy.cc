@@ -109,11 +109,11 @@ Lambda<
 int main(){
     test_fib();
 
-    /*
     static_assert(FB::eval<If<Lit<False>, Lit<Fib<10>>, Lit<Fib<11>>>>() == 89);
     static_assert(FB::eval<If< Eq<L<1>, L<2>>, L<10>, L<11> >>() == 55);
     static_assert(FB::eval<If< Eq<L<1>, L<3>>, L<10>, L<11> >>() == 89);
     static_assert(Fibin<uint8_t>::eval<If< Eq<L<32>, L<5>>, L<10>, L<11> >>() == 55);
+    /*
 
 
     static_assert(FB::eval<If<If<Lit<False>, Lit<True>, Lit<False>>, Lit<Fib<2>>, Lit<Fib<3>>>>() == 2);

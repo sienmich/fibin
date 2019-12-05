@@ -109,7 +109,7 @@ private:
             <
                 typename Eval<Env, T1>::result,
                 typename Eval<Env, T2>::result
-            >::result,
+            >::value,
             True,
             False
         >::type;
