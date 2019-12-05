@@ -6,8 +6,6 @@
 
 #include <iostream>
 
-struct True {};
-struct False {};
 namespace details {
     constexpr bool charToInt(char c) {
         return  ('0' <= c && c <= '9') ? c - '0':
@@ -16,14 +14,19 @@ namespace details {
                 throw std::logic_error("Wrong variable name: wrong char");
     }
 }
-
 constexpr unsigned Var(const char* s, int n = 0) {
-    return s[n] == '\0' ?
-           (n == 0 ? throw std::logic_error("Wrong variable name: length = 0") : 0):
-           (n > 6 ? throw std::logic_error("Wrong variable name: length > 6") :
-            details::charToInt(s[n]) + 1 + (10 + 'z' - 'a' + 1) * Var(s, n+1)
-           );
+    if (s[n] == '\0') {
+        if (n == 0)
+            throw std::logic_error("Wrong variable name: empty name");
+        return 0;
+    }
+    if (n > 6)
+        throw std::logic_error("Wrong variable name: length > 6");
+    return details::charToInt(s[n]) + 1 + (10 + 'z' - 'a' + 1) * Var(s, n+1);
 }
+
+struct True {};
+struct False {};
 
 template<unsigned i> struct Ref {};
 
@@ -50,6 +53,16 @@ template<unsigned i> struct Fib {};
 
 template <typename T, typename Enable = void>
 class Fibin;
+
+template <typename T>
+class Fibin<T, typename std::enable_if_t<!std::is_integral_v<T>>> {
+public:
+    template<typename Exp>
+    static T eval()
+    {
+        std::cout << "Fibin doesn't support: " << typeid(T).name() << std::endl;
+    }
+};
 
 // Fibin
 template <typename T>
@@ -285,13 +298,5 @@ T    eval()
 };
 
 
-template <typename T>
-class Fibin<T, typename std::enable_if_t<!std::is_integral_v<T>>> {
-public:
-    template<typename Exp>
-    static T eval()
-    {
-        std::cout << "Fibin doesn't support: " << typeid(T).name() << std::endl;
-    }
-};
+
 #endif //PROJECT_4_FIBO_PLAYGROUND_H
