@@ -169,8 +169,8 @@ int main(){
             >
         >
     >;
-    ///TODO Scoping
-//    static_assert(34 == Fibin<int>::eval<Scoping>());
+
+    static_assert(34 == Fibin<int>::eval<Scoping>());
 
     static_assert(2 == Fibin<uint>::eval<Invoke<Let<Var("x"), Lit<Fib<1>>, Lambda<Var("x"), Ref<Var("x")> > >, Lit<Fib<3>> > >());
 
@@ -218,11 +218,13 @@ int main(){
                             >,
                             Ref<Var("args")>>>>>>>;
 
-    /*
+
     std::cout << Fibin<uint64_t>::eval<Invoke<
-            Invoke<Ycombinator, SquareN<10>>,
+            Invoke<Ycombinator, SquareN<1>>,
             Lit<Fib<1>>
     >>() << "\n";
+
+
 
     /// TODO Ycombinator
     static_assert(
@@ -233,11 +235,11 @@ int main(){
 
     static_assert(
         Fibin<uint64_t>::eval<Invoke<
-            Invoke<Ycombinator, SquareN<103>>,
+            Invoke<Ycombinator, SquareN<11>>,
             Lit<Fib<1>>
-        >>() == 103*103);
+        >>() == 11*11);
 
-     */
+
 
     // Prints out to std::cout: "Fibin doesn't support: PKc"
     Fibin<const char*>::eval<Lit<Fib<0>>>();
