@@ -39,10 +39,11 @@ constexpr unsigned Var(const char *s, int n = 0) {
 /// Structs defined in problem statement:
 struct True {
 };
+
 struct False {
 };
 
-template<unsigned i>
+template<unsigned VarNo>
 struct Ref {
 };
 
@@ -58,7 +59,7 @@ template<typename Val>
 struct Inc10 {
 };
 
-template<typename t1, typename t2>
+template<typename T1, typename T2>
 struct Eq {
 };
 
