@@ -120,11 +120,6 @@ private:
     struct EnvList {
     };
 
-    // Typ do łączenia list środowisk
-    template<typename EnvFirst, typename EnvSecond>
-    struct ConcatEnv {
-    };
-
     // Typ przechowujący funkcję
     template<unsigned VarNo, typename Exp, typename Env>
     struct Function {
@@ -211,24 +206,6 @@ private:
         >>::result;
     };
 
-    // Ewaluacja Ref Nowa
-    template<unsigned VarNo, typename Env2>
-    struct Eval<ConcatEnv<EmptyEnv, Env2>, Ref<VarNo>> {
-        using result = typename Eval<Env2, Ref<VarNo>>::result;
-    };
-
-    // Ewaluacja Ref Nowa
-    template<unsigned VarNo, typename Val, typename EnvTail, typename Env2>
-    struct Eval<ConcatEnv<EnvList<VarNo, Val, EnvTail>, Env2>, Ref<VarNo>> {
-        using result = Val;
-    };
-
-    // Ewaluacja Ref Nowa
-    template<unsigned VarNo, unsigned EnvVarNo, typename Val, typename EnvTail, typename Env2>
-    struct Eval<ConcatEnv<EnvList<EnvVarNo, Val, EnvTail>, Env2>, Ref<VarNo>> {
-        using result = typename Eval<ConcatEnv<EnvTail, Env2>, Ref<VarNo>>::result;
-    };
-
     // Ewaluacja Ref
     template<unsigned VarNo, typename Val, typename EnvTail>
     struct Eval<EnvList<VarNo, Val, EnvTail>, Ref<VarNo>> {
@@ -253,7 +230,7 @@ private:
     struct Eval<Env, Invoke<Function<VarNo, Exp, FEnv>, Param>> {
         using param_result = typename Eval<Env, Param>::result;
 
-        using result = typename Eval<EnvList<VarNo, param_result, ConcatEnv<FEnv, Env>>,
+        using result = typename Eval<EnvList<VarNo, param_result, FEnv>,
                 Exp>::result;
     };
 

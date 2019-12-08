@@ -218,7 +218,7 @@ int main(){
                             Ref<Var("args")>>>>>>>;
 
     std::cout << Fibin<uint64_t>::eval<Invoke<
-            Invoke<Ycombinator, SquareN<3>>,
+            Invoke<Ycombinator, SquareN<50>>,
             Lit<Fib<1>>
     >>() << "\n";
 
