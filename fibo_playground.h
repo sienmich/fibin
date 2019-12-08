@@ -121,32 +121,13 @@ private:
     };
 
     // Typ do łączenia list środowisk
-    template<typename EnvFirst, typename EnvSecond, typename Rev>
-    struct MergeEnv {
-    };
-
-    template<typename EnvSecond>
-    struct MergeEnv<EmptyEnv, EnvSecond, EmptyEnv>
-    {
-        using result = EnvSecond;
-    };
-
-    template<typename EnvSecond, unsigned VarNo, typename Val, typename RevTail>
-    struct MergeEnv<EmptyEnv, EnvSecond, EnvList<VarNo, Val, RevTail>>
-    {
-        using result = typename MergeEnv<EmptyEnv, EnvList<VarNo, Val, EnvSecond>, RevTail>::result;
-    };
-
-    template<unsigned VarNo, typename Val, typename FirstTail, typename EnvSecond, typename Rev>
-    struct MergeEnv<EnvList<VarNo, Val, FirstTail>, EnvSecond, Rev>
-    {
-        using result = typename MergeEnv<FirstTail, EnvSecond, EnvList<VarNo, Val, Rev>>::result;
+    template<typename EnvFirst, typename EnvSecond>
+    struct ConcatEnv {
     };
 
     // Typ przechowujący funkcję
     template<unsigned VarNo, typename Exp, typename Env>
     struct Function {
-        static const int xd = 69;
     };
 
     // Typ przechowujący wartość
@@ -162,17 +143,9 @@ private:
 
     // Ewaluacja Value
     template<typename Env, T a>
-    struct Eval<Env, Value<a>>
-    {
+    struct Eval<Env, Value<a>> {
         using result = Value<a>;
     };
-
-    /*// Ewaluacja Funkcji
-    template<typename Env, unsigned VarNo, typename Exp, typename FEnv>
-    struct Eval<Env, Function<VarNo, Exp, FEnv>>
-    {
-        using result = Function<VarNo, Exp, FEnv>;
-    };*/
 
     // Ewaluacja Lita
     template<typename Env, unsigned i>
@@ -235,7 +208,25 @@ private:
                 std::is_same_v<cond_result, True>,
                 IfTrue,
                 IfFalse
-                >>::result ;
+        >>::result;
+    };
+
+    // Ewaluacja Ref Nowa
+    template<unsigned VarNo, typename Env2>
+    struct Eval<ConcatEnv<EmptyEnv, Env2>, Ref<VarNo>> {
+        using result = typename Eval<Env2, Ref<VarNo>>::result;
+    };
+
+    // Ewaluacja Ref Nowa
+    template<unsigned VarNo, typename Val, typename EnvTail, typename Env2>
+    struct Eval<ConcatEnv<EnvList<VarNo, Val, EnvTail>, Env2>, Ref<VarNo>> {
+        using result = Val;
+    };
+
+    // Ewaluacja Ref Nowa
+    template<unsigned VarNo, unsigned EnvVarNo, typename Val, typename EnvTail, typename Env2>
+    struct Eval<ConcatEnv<EnvList<EnvVarNo, Val, EnvTail>, Env2>, Ref<VarNo>> {
+        using result = typename Eval<ConcatEnv<EnvTail, Env2>, Ref<VarNo>>::result;
     };
 
     // Ewaluacja Ref
@@ -244,6 +235,7 @@ private:
         using result = Val;
     };
 
+    // Ewaluacja Ref
     template<unsigned VarNo, unsigned EnvVarNo, typename Val, typename EnvTail>
     struct Eval<EnvList<EnvVarNo, Val, EnvTail>, Ref<VarNo>> {
         using result = typename Eval<EnvTail, Ref<VarNo> >::result;
@@ -261,15 +253,13 @@ private:
     struct Eval<Env, Invoke<Function<VarNo, Exp, FEnv>, Param>> {
         using param_result = typename Eval<Env, Param>::result;
 
-        using result = typename Eval<EnvList<VarNo, param_result, typename MergeEnv<FEnv, Env, EmptyEnv>::result>,
+        using result = typename Eval<EnvList<VarNo, param_result, ConcatEnv<FEnv, Env>>,
                 Exp>::result;
     };
 
     template<typename Env, typename Func, typename Param>
     struct Eval<Env, Invoke<Func, Param>> {
         using func_result = typename Eval<Env, Func>::result;
-
-        static_assert(func_result::xd == 69);
 
         using result = typename Eval<Env,
                 Invoke<func_result, Param> >::result;

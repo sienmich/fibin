@@ -1,6 +1,5 @@
 #include "fibo_playground.h"
 #include <iostream>
-#include <type_traits>
 
 template<unsigned n>
 using L = Lit<Fib<n>>;
@@ -190,7 +189,7 @@ int main(){
             L<11>
         >
     >;
-    /// TODO FB mówi, że nie powinno działać, a działa :o
+
     static_assert(55 == FB::eval<FunctionComparison>());
 
 
@@ -218,27 +217,23 @@ int main(){
                             >,
                             Ref<Var("args")>>>>>>>;
 
-
     std::cout << Fibin<uint64_t>::eval<Invoke<
-            Invoke<Ycombinator, SquareN<1>>,
+            Invoke<Ycombinator, SquareN<3>>,
             Lit<Fib<1>>
     >>() << "\n";
 
 
-
-    /// TODO Ycombinator
     static_assert(
         Fibin<uint64_t>::eval<Invoke<
-            Invoke<Ycombinator, SquareN<10>>,
+            Invoke<Ycombinator, SquareN<5>>,
             Lit<Fib<1>>
-        >>() == 100);
+        >>() == 25);
 
     static_assert(
         Fibin<uint64_t>::eval<Invoke<
-            Invoke<Ycombinator, SquareN<11>>,
+            Invoke<Ycombinator, SquareN<6>>,
             Lit<Fib<1>>
-        >>() == 11*11);
-
+        >>() == 36);
 
 
     // Prints out to std::cout: "Fibin doesn't support: PKc"
