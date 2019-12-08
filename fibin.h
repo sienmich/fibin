@@ -11,29 +11,37 @@ namespace details {
     /// \return - converted into int
     constexpr unsigned charToInt(char c) {
         if ('0' <= c && c <= '9')
-            return c - '0';
-        if ('a' <= c && c <= 'z')
-            return c - 'a' + 10;
-        if ('A' <= c && c <= 'Z')
-            return c - 'A' + 10;
+            c -= '0';
+        else if ('a' <= c && c <= 'z')
+            c -= 'a' - 10;
+        else if ('A' <= c && c <= 'Z')
+            c -= 'A' - 10;
         else
             throw std::logic_error("Wrong variable name: wrong char");
+        return c;
+    }
+
+    /// Hashes string into unsigned. Checks if its length is in [1, 6].
+    /// \param s - pointer to the string
+    /// \param n - index of first char to hash
+    /// \return - unsigned hashed value
+    constexpr unsigned stringToInt(const char *s, int n) {
+        if (s[n] == '\0') {
+            if (n == 0)
+                throw std::logic_error("Wrong variable name: empty name");
+            return 0;
+        }
+        if (n > 6)
+            throw std::logic_error("Wrong variable name: length > 6");
+        return details::charToInt(s[n]) + 1 + (10 + 'z' - 'a' + 1) * stringToInt(s, n + 1);
     }
 }
 
 /// Hashes string into unsigned. Checks if its length is in [1, 6].
 /// \param s - pointer to the string
-/// \param n - index of first char to hash
 /// \return - unsigned hashed value
-constexpr unsigned Var(const char *s, int n = 0) {
-    if (s[n] == '\0') {
-        if (n == 0)
-            throw std::logic_error("Wrong variable name: empty name");
-        return 0;
-    }
-    if (n > 6)
-        throw std::logic_error("Wrong variable name: length > 6");
-    return details::charToInt(s[n]) + 1 + (10 + 'z' - 'a' + 1) * Var(s, n + 1);
+constexpr unsigned Var(const char *s) {
+    return details::stringToInt(s, 0);
 }
 
 /// Structs defined in problem statement:

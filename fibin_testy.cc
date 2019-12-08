@@ -108,7 +108,7 @@ Lambda<
 int main(){
     std::cout << Fibin<uint8_t>::eval<Sum<Lit<Fib<14>>, Lit<Fib<14>>, Lit<Fib<14>>>>();
     std::cout << std::endl;
-    std::cout << Fibin<uint8_t>::eval<L<32>>();
+    std::cout << Fibin<uint8_t>::eval<L<3200>>();
     std::cout << std::endl;
     std::cout << Fibin<uint8_t>::eval<L<14>>();
     std::cout << std::endl;
@@ -203,7 +203,7 @@ int main(){
         >
     >;
 
-    static_assert(55 == FB::eval<FunctionComparison>());
+//    static_assert(55 == FB::eval<FunctionComparison>());
 
 
     using Ycombinator =
