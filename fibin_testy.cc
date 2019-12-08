@@ -106,6 +106,19 @@ Lambda<
 
 
 int main(){
+    std::cout << Fibin<uint8_t>::eval<Sum<Lit<Fib<14>>, Lit<Fib<14>>, Lit<Fib<14>>>>();
+    std::cout << std::endl;
+    std::cout << Fibin<uint8_t>::eval<L<32>>();
+    std::cout << std::endl;
+    std::cout << Fibin<uint8_t>::eval<L<14>>();
+    std::cout << std::endl;
+
+    static_assert(233 == Fibin<uint8_t>::eval<L<13>>());
+    static_assert(121 == Fibin<uint8_t>::eval<L<14>>());
+    std::cout << std::endl;
+    std::cout << Fibin<bool>::eval<Sum<Lit<Fib<1>>, Lit<Fib<1>>>>();
+    std::cout << Fibin<bool>::eval<Sum<Lit<Fib<1>>, Lit<Fib<2>>>>();
+
     test_fib();
 
     static_assert(FB::eval<If<Lit<False>, Lit<Fib<10>>, Lit<Fib<11>>>>() == 89);
