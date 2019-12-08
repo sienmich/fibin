@@ -117,9 +117,9 @@ private:
     static constexpr T fibo(unsigned n) {
         if (n == 0)
             return 0;
-        int a = 0, b = 1, c = 0;
+        T a = 0, b = 1, c = 0;
         while (n-- > 1) {
-            c = a + b;
+            c = static_cast<T>(a + b);
             a = b;
             b = c;
         }
@@ -192,8 +192,8 @@ private:
     /// Sum evaluation for two components
     template<typename Env, typename A, typename B>
     struct Eval<Env, Sum<A, B>> {
-        using result = Value<
-                Eval<Env, A>::result::val + Eval<Env, B>::result::val>;
+        using result = Value<static_cast<T>(Eval<Env, A>::result::val +
+                                            Eval<Env, B>::result::val)>;
     };
 
     /// Sum evaluation for more than two components
