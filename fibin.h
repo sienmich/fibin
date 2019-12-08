@@ -116,13 +116,15 @@ public:
 private:
     /// Returns n-th Fibonacci number
     static constexpr T fibo(unsigned n) {
+        if (n == 0)
+            return 0;
         int a = 0, b = 1, c = 0;
-        while (n-- > 0) {
+        while (n-- > 1) {
             c = a + b;
             a = b;
             b = c;
         }
-        return a;
+        return b;
     }
 
     /// Empty environment list
