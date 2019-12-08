@@ -198,7 +198,7 @@ private:
     template<typename Env, typename Head, typename... Tail>
     struct Eval<Env, Sum<Head, Tail...>> {
         using result = typename Eval<Env, Sum<typename Eval<Env, Head>::result,
-                typename Eval<Env, Sum<Tail...>>::result> >::result;
+                typename Eval<Env, Sum<Tail...>>::result>>::result;
     };
 
     /// Inc1 evaluation
@@ -237,7 +237,7 @@ private:
     /// Ref evaluation for unfitting environment list head
     template<unsigned VarId, unsigned EnvVarId, typename Val, typename EnvTail>
     struct Eval<EnvList<EnvVarId, Val, EnvTail>, Ref<VarId>> {
-        using result = typename Eval<EnvTail, Ref<VarId> >::result;
+        using result = typename Eval<EnvTail, Ref<VarId>>::result;
     };
 
     /// Let evaluation
@@ -264,7 +264,7 @@ private:
         using func_result = typename Eval<Env, Func>::result;
 
         using result = typename Eval<Env,
-                Invoke<func_result, Param> >::result;
+                Invoke<func_result, Param>>::result;
     };
 
     /// Lambda evaluation
