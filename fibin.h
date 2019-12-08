@@ -1,5 +1,5 @@
-#ifndef PROJECT_4_FIBO_PLAYGROUND_H
-#define PROJECT_4_FIBO_PLAYGROUND_H
+#ifndef FIBIN_H
+#define FIBIN_H
 
 #include <type_traits>
 #include <stdexcept>
@@ -16,10 +16,11 @@ namespace details {
             return c - 'a' + 10;
         if ('A' <= c && c <= 'Z')
             return c - 'A' + 10;
-        else //TODO: jak usunąć tego elsa, ale żeby się kompilowało?
+        else
             throw std::logic_error("Wrong variable name: wrong char");
     }
 }
+
 /// Hashes string into unsigned. Checks if its length is in [1, 6].
 /// \param s - pointer to the string
 /// \param n - index of first char to hash
@@ -183,7 +184,7 @@ private:
     struct Eval<Env, Eq<T1, T2>> {
         using result = typename std::conditional_t<
                 std::is_same_v<typename Eval<Env, T1>::result,
-                               typename Eval<Env, T2>::result>, True, False>;
+                        typename Eval<Env, T2>::result>, True, False>;
     };
 
     /// Sum evaluation for two components
@@ -242,12 +243,14 @@ private:
     /// Let evaluation
     template<typename Env, unsigned VarId, typename ValExp, typename ResultExp>
     struct Eval<Env, Let<VarId, ValExp, ResultExp>> {
-        using result = typename Eval<EnvList<VarId, typename Eval<Env, ValExp>::result, Env>,
+        using result = typename Eval<
+                EnvList<VarId, typename Eval<Env, ValExp>::result, Env>,
                 ResultExp>::result;
     };
 
     /// Invoke evaluation for basic function
-    template<typename Env, unsigned VarId, typename Exp, typename Param, typename FEnv>
+    template<typename Env, unsigned VarId, typename Exp, typename Param,
+            typename FEnv>
     struct Eval<Env, Invoke<Function<VarId, Exp, FEnv>, Param>> {
         using param_result = typename Eval<Env, Param>::result;
 
@@ -272,4 +275,4 @@ private:
 };
 
 
-#endif //PROJECT_4_FIBO_PLAYGROUND_H
+#endif //FIBIN_H
