@@ -153,6 +153,18 @@ private:
         static const T val = a;
     };
 
+    /// Checks if given type is a numeric value in Fibin language.
+    /// Defaults to false.
+    template<typename Val> struct IsValue {
+        static const bool result = false;
+    };
+
+    /// But is true for any Value
+    template<T a>
+    struct IsValue<Value<a>> {
+        static const bool result = true;
+    };
+
     /// Type for evaluating all expressions
     template<typename Env, typename Expr>
     struct Eval {
@@ -182,12 +194,22 @@ private:
         using result = True;
     };
 
-    /// Eq evaluation
+    /// Eq evaluation, only allows simple (non functional) values
     template<typename Env, typename T1, typename T2>
     struct Eval<Env, Eq<T1, T2>> {
+        using T1_result = typename Eval<Env, T1>::result;
+        using T2_result = typename Eval<Env, T2>::result;
+
+        static_assert(IsValue<T1_result>::result ||
+                      std::is_same_v<T1_result, True> ||
+                      std::is_same_v<T1_result, False>);
+
+        static_assert(IsValue<T2_result>::result ||
+                      std::is_same_v<T2_result, True> ||
+                      std::is_same_v<T2_result, False>);
+
         using result = typename std::conditional_t<
-                std::is_same_v<typename Eval<Env, T1>::result,
-                        typename Eval<Env, T2>::result>, True, False>;
+                std::is_same_v<T1_result, T2_result>, True, False>;
     };
 
     /// Sum evaluation for two components
